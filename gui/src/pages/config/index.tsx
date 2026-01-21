@@ -23,11 +23,7 @@ function ConfigPage() {
     session && organizations.length > 1 && !isOnPremSession(session);
 
   const handleTabClick = (tabId: string) => {
-    if (tabId === "back") {
-      navigate("/");
-    } else {
-      navigate(`/config?tab=${tabId}`);
-    }
+    navigate(`/config?tab=${tabId}`);
   };
 
   return (

@@ -1,5 +1,4 @@
 import {
-  ArrowLeftIcon,
   BuildingOfficeIcon,
   CircleStackIcon,
   Cog6ToothIcon,
@@ -35,17 +34,6 @@ interface TabSection {
 }
 
 export const topTabSections: TabSection[] = [
-  {
-    id: "top",
-    tabs: [
-      {
-        id: "back",
-        label: "Back",
-        component: <div />,
-        icon: <ArrowLeftIcon className="xs:h-4 xs:w-4 h-3 w-3 flex-shrink-0" />,
-      },
-    ],
-  },
   {
     id: "blocks",
     showTopDivider: true,

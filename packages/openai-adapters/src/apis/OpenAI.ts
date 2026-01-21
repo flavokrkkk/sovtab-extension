@@ -17,12 +17,13 @@ import type {
 } from "openai/resources/responses/responses.js";
 import { z } from "zod";
 import { OpenAIConfigSchema } from "../types.js";
+import { customFetch } from "../util.js";
 import {
-  customFetch,
-  chatChunk,
-  usageChatChunk,
-  chatChunkFromDelta,
-} from "../util.js";
+  BaseLlmApi,
+  CreateRerankResponse,
+  FimCreateParamsStreaming,
+  RerankCreateParams,
+} from "./base.js";
 import {
   createResponsesStreamState,
   fromResponsesChunk,
@@ -30,12 +31,6 @@ import {
   responseToChatCompletion,
   toResponsesParams,
 } from "./openaiResponses.js";
-import {
-  BaseLlmApi,
-  CreateRerankResponse,
-  FimCreateParamsStreaming,
-  RerankCreateParams,
-} from "./base.js";
 
 export class OpenAIApi implements BaseLlmApi {
   openai: OpenAI;
@@ -381,6 +376,7 @@ export class OpenAIApi implements BaseLlmApi {
         presence_penalty: modifiedBody.presence_penalty,
         stop: modifiedBody.stop,
         stream: true,
+        ...this.config.requestOptions?.extraBodyProperties,
       }),
       headers: this.getHeaders(),
       signal,

@@ -146,10 +146,16 @@ export async function fetchwithRequestOptions(
   try {
     if (requestOptions?.extraBodyProperties && typeof init?.body === "string") {
       const parsedBody = JSON.parse(init.body);
+      console.log("[fetch] Original body:", parsedBody);
+      console.log(
+        "[fetch] extraBodyProperties:",
+        requestOptions.extraBodyProperties,
+      );
       updatedBody = JSON.stringify({
         ...parsedBody,
         ...requestOptions.extraBodyProperties,
       });
+      console.log("[fetch] Final body:", JSON.parse(updatedBody));
     }
   } catch (e) {
     console.log("Unable to parse HTTP request body: ", e);
