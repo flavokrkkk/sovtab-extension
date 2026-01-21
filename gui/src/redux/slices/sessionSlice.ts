@@ -35,7 +35,7 @@ import { findUriInDirs, getUriPathBasename } from "core/util/uri";
 import { findLastIndex } from "lodash";
 import { v4 as uuidv4 } from "uuid";
 import { type InlineErrorMessageType } from "../../components/mainInput/InlineErrorMessage";
-import { toolCallCtxItemToCtxItemWithId } from "../../pages/gui/ToolCallDiv/utils";
+import { toolCallCtxItemToCtxItemWithId } from "../../util/toolCallState";
 import { addToolCallDeltaToState, isEditTool } from "../../util/toolCallState";
 import { RootState } from "../store";
 import { streamResponseThunk } from "../thunks/streamResponse";

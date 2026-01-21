@@ -25,7 +25,7 @@ import {
   renderContextItems,
   renderContextItemsWithStatus,
 } from "core/util/messageContent";
-import { toolCallStateToContextItems } from "../../pages/gui/ToolCallDiv/utils";
+import { toolCallStateToContextItems } from "../../util/toolCallState";
 
 // Helper function to render context items and append status information
 // Helper function to render context items and append status information

@@ -9,7 +9,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { IdeMessengerContext } from "../../../context/IdeMessenger";
 import { useIdeMessengerRequest } from "../../../hooks/useIdeMessengerRequest";
 import { useWebviewListener } from "../../../hooks/useWebviewListener";
-import { getStatusIcon } from "../../../pages/gui/ToolCallDiv/utils";
+import { getStatusIconForStatus } from "../../../util/toolCallState";
 import { useAppSelector } from "../../../redux/hooks";
 import { selectToolCallById } from "../../../redux/selectors/selectToolCalls";
 import {
@@ -113,7 +113,7 @@ export function StepContainerPreToolbar({
           }
         }}
       >
-        {getStatusIcon(toolCallState.status)}
+        {getStatusIconForStatus(toolCallState.status)}
       </div>
     ) : null;
 

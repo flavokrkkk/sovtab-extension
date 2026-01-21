@@ -52,7 +52,7 @@ const saveSubsetFilters = [
     "codeToEdit",
   ]),
   createFilter("config", []),
-  createFilter("ui", ["toolSettings", "toolGroupSettings", "ruleSettings"]),
+  createFilter("ui", ["ruleSettings"]),
   createFilter("indexing", []),
   createFilter("tabs", ["tabs"]),
   createFilter("profiles", [

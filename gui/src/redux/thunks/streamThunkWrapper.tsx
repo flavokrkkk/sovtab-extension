@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import posthog from "posthog-js";
-import StreamErrorDialog from "../../pages/gui/StreamError";
+import React from "react";
 import { analyzeError } from "../../util/errorAnalysis";
 import { selectSelectedChatModel } from "../slices/configSlice";
 import { setDialogMessage, setShowDialog } from "../slices/uiSlice";
@@ -52,7 +52,15 @@ export const streamThunkWrapper = createAsyncThunk<
         await dispatch(cancelStream());
       } else {
         await dispatch(cancelStream());
-        dispatch(setDialogMessage(<StreamErrorDialog error={e} />));
+        // Показываем простое сообщение об ошибке без зависимости от чатового компонента
+        dispatch(
+          setDialogMessage(
+            <div>
+              <h2>Stream error</h2>
+              <p>{String(e)}</p>
+            </div>,
+          ),
+        );
         dispatch(setShowDialog(true));
 
         const errorData = {

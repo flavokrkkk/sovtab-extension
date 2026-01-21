@@ -6,8 +6,6 @@ import { VscThemeProvider } from "./context/VscTheme";
 import ParallelListeners from "./hooks/ParallelListeners";
 import ConfigPage from "./pages/config";
 import ErrorPage from "./pages/error";
-import History from "./pages/history";
-import Stats from "./pages/stats";
 import ThemePage from "./styles/ThemePage";
 import { ROUTES } from "./util/navigation";
 
@@ -24,14 +22,6 @@ const router = createMemoryRouter([
       {
         path: ROUTES.HOME_INDEX,
         element: <ConfigPage />,
-      },
-      {
-        path: "/history",
-        element: <History />,
-      },
-      {
-        path: ROUTES.STATS,
-        element: <Stats />,
       },
       {
         path: ROUTES.CONFIG,

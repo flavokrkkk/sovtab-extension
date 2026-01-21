@@ -30,13 +30,8 @@ class Calculator {
   }
 
   generateMatrix(n) {
-    const matrix = [];
-    for (let i = 0; i < n; i++) {
-      matrix.push([]);
-      for (let j = 0; j < n; j++) {
-        matrix[i].push(Math.floor(Math.random() * 10));
-      }
-    }
+    this.result = new Array(n).fill(0);
+    console.log("its matrix");
   }
 
   getResult() {

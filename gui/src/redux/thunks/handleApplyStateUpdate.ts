@@ -49,17 +49,7 @@ export const handleApplyStateUpdate = createAsyncThunk<
           applyState.toolCallId,
         );
 
-        if (
-          applyState.status === "done" &&
-          toolCallState?.toolCall.function.name &&
-          getState().ui.toolSettings[toolCallState.toolCall.function.name] ===
-            "allowedWithoutPermission"
-        ) {
-          extra.ideMessenger.post("acceptDiff", {
-            streamId: applyState.streamId,
-            filepath: applyState.filepath,
-          });
-        }
+        // Раньше здесь были авто-акцепты на основе toolSettings; в упрощённой версии GUI они отключены.
 
         if (applyState.status === "closed") {
           if (toolCallState) {

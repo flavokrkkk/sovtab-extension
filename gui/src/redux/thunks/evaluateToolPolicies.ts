@@ -3,7 +3,6 @@ import { Tool, ToolCallState } from "core";
 import { IIdeMessenger } from "../../context/IdeMessenger";
 import { isEditTool } from "../../util/toolCallState";
 import { errorToolCall, updateToolCallOutput } from "../slices/sessionSlice";
-import { DEFAULT_TOOL_SETTING, ToolPolicies } from "../slices/uiSlice";
 import { AppThunkDispatch } from "../store";
 
 interface EvaluatedPolicy {
@@ -20,7 +19,7 @@ async function evaluateToolPolicy(
   ideMessenger: IIdeMessenger,
   activeTools: Tool[],
   toolCallState: ToolCallState,
-  toolPolicies: ToolPolicies,
+  toolPolicies: Record<string, ToolPolicy>,
 ): Promise<EvaluatedPolicy> {
   // allow edit tool calls without permission
   if (isEditTool(toolCallState.toolCall.function.name)) {
@@ -32,7 +31,7 @@ async function evaluateToolPolicy(
     activeTools.find(
       (tool) => tool.function.name === toolCallState.toolCall.function.name,
     )?.defaultToolPolicy ??
-    DEFAULT_TOOL_SETTING;
+    "allowedWithPermission";
 
   const toolName = toolCallState.toolCall.function.name;
   const result = await ideMessenger.request("tools/evaluatePolicy", {
@@ -76,7 +75,7 @@ export async function evaluateToolPolicies(
   ideMessenger: IIdeMessenger,
   activeTools: Tool[],
   generatedToolCalls: ToolCallState[],
-  toolPolicies: ToolPolicies,
+  toolPolicies: Record<string, ToolPolicy>,
 ): Promise<EvaluatedPolicy[]> {
   // Check if ALL tool calls are auto-approved using dynamic evaluation
   const policyResults = await Promise.all(

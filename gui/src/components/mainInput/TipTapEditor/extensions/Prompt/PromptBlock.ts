@@ -2,7 +2,6 @@ import { mergeAttributes, Node } from "@tiptap/core";
 import { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ContextItemWithId } from "core";
-import { MAIN_EDITOR_INPUT_ID } from "../../../../../pages/gui/Chat";
 import { ComboBoxItem } from "../../../types";
 import { PromptBlockPreview } from "./PromptBlockPreview";
 
@@ -91,17 +90,7 @@ export const PromptBlock = Node.create<PromptBlockOptions>({
             },
           };
 
-          return chain()
-            .clearPrompt()
-            .insertContentAt(0, {
-              type: this.name,
-              attrs: {
-                item: contextItem,
-                inputId: MAIN_EDITOR_INPUT_ID,
-              },
-            })
-            .focus("end")
-            .run();
+          return chain().clearPrompt().focus("end").run();
         },
 
       // TODO: This could probably be greatly simplified with something along the lines of

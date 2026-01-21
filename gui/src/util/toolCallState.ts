@@ -1,4 +1,5 @@
 import { ToolCallDelta, ToolCallState } from "core";
+import React from "react";
 import { BuiltInToolNames } from "core/tools/builtIn";
 import { incrementalParseJson } from "core/util/incrementalParseJson";
 
@@ -76,4 +77,44 @@ const editToolNames: string[] = [
 ];
 export function isEditTool(toolName: string) {
   return editToolNames.includes(toolName);
+}
+
+export function toolCallCtxItemToCtxItemWithId(
+  item: any,
+  toolCallId: string,
+): any {
+  return {
+    ...item,
+    id: {
+      providerTitle: "tool",
+      itemId: toolCallId,
+    },
+  };
+}
+
+export function toolCallStateToContextItems(
+  toolCallState: ToolCallState,
+): any[] {
+  return (toolCallState.output ?? []).map((item: any) =>
+    toolCallCtxItemToCtxItemWithId(item, toolCallState.toolCallId),
+  );
+}
+
+export function getStatusIconForStatus(
+  status: ToolCallState["status"],
+): JSX.Element | null {
+  // Simple placeholder mapping for now – can be expanded or themed as needed
+  switch (status) {
+    case "done":
+      return React.createElement("span", null, "✓");
+    case "errored":
+      return React.createElement("span", null, "!");
+    case "canceled":
+      return React.createElement("span", null, "×");
+    case "calling":
+    case "generated":
+    case "generating":
+    default:
+      return null;
+  }
 }
