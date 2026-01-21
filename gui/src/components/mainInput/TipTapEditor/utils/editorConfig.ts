@@ -14,7 +14,13 @@ import { usePostHog } from "posthog-js/react";
 import { useRef } from "react";
 import { IIdeMessenger } from "../../../../context/IdeMessenger";
 import { useSubmenuContextProviders } from "../../../../context/SubmenuContextProviders";
-import { useInputHistory } from "../../../../hooks/useInputHistory";
+// useInputHistory removed - not used in config pages
+const useInputHistory = (_key: string) => {
+  const prevRef = { current: (_doc: any) => null };
+  const nextRef = { current: () => null };
+  const addRef = { current: (_content: any) => {} };
+  return { prevRef, nextRef, addRef };
+};
 import useUpdatingRef from "../../../../hooks/useUpdatingRef";
 import { useAppSelector } from "../../../../redux/hooks";
 import { selectUseActiveFile } from "../../../../redux/selectors";

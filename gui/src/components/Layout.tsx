@@ -1,4 +1,3 @@
-import { OnboardingModes } from "core/protocol/core";
 import { useContext, useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -9,21 +8,11 @@ import { LocalStorageProvider } from "../context/LocalStorage";
 import TelemetryProviders from "../hooks/TelemetryProviders";
 import { useWebviewListener } from "../hooks/useWebviewListener";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { setCodeToEdit } from "../redux/slices/editState";
 import { setDialogMessage, setShowDialog } from "../redux/slices/uiSlice";
-import { enterEdit, exitEdit } from "../redux/thunks/edit";
-import { saveCurrentSession } from "../redux/thunks/session";
 import { fontSize, isMetaEquivalentKeyPressed } from "../util";
 import { ROUTES } from "../util/navigation";
 import { FatalErrorIndicator } from "./config/FatalErrorNotice";
 import TextDialog from "./dialogs";
-import { GenerateRuleDialog } from "./GenerateRuleDialog";
-import { useMainEditor } from "./mainInput/TipTapEditor";
-import {
-  isNewUserOnboarding,
-  OnboardingCard,
-  useOnboardingCard,
-} from "./OnboardingCard";
 import OSRContextMenu from "./OSRContextMenu";
 import PostHogPageView from "./PosthogPageView";
 
@@ -42,17 +31,14 @@ const GridDiv = styled.div`
 
 const Layout = () => {
   const [showStagingIndicator, setShowStagingIndicator] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const onboardingCard = useOnboardingCard();
   const ideMessenger = useContext(IdeMessengerContext);
 
-  const { mainEditor } = useMainEditor();
   const dialogMessage = useAppSelector((state) => state.ui.dialogMessage);
 
   const showDialog = useAppSelector((state) => state.ui.showDialog);
-  const isInEdit = useAppSelector((store) => store.session.isInEdit);
   const isHome =
     location.pathname === ROUTES.HOME ||
     location.pathname === ROUTES.HOME_INDEX;
@@ -69,66 +55,8 @@ const Layout = () => {
   }, []);
 
   useWebviewListener(
-    "newSession",
-    async () => {
-      navigate(ROUTES.HOME);
-      if (isInEdit) {
-        await dispatch(exitEdit({}));
-      } else {
-        await dispatch(
-          saveCurrentSession({
-            openNewSession: true,
-            generateTitle: true,
-          }),
-        );
-      }
-    },
-    [isInEdit],
-  );
-
-  useWebviewListener(
-    "isContinueInputFocused",
-    async () => {
-      return false;
-    },
-    [isHome],
-    isHome,
-  );
-
-  useWebviewListener(
-    "focusContinueInputWithNewSession",
-    async () => {
-      navigate(ROUTES.HOME);
-      if (isInEdit) {
-        await dispatch(
-          exitEdit({
-            openNewSession: true,
-          }),
-        );
-      } else {
-        await dispatch(
-          saveCurrentSession({
-            openNewSession: true,
-            generateTitle: true,
-          }),
-        );
-      }
-    },
-    [isHome, isInEdit],
-    isHome,
-  );
-
-  useWebviewListener(
-    "addModel",
-    async () => {
-      navigate("/models");
-    },
-    [navigate],
-  );
-
-  useWebviewListener(
     "navigateTo",
-    async (data) => {
+    async (data: { path: string; toggle?: boolean }) => {
       if (data.toggle && location.pathname === data.path) {
         navigate("/");
       } else {
@@ -136,77 +64,6 @@ const Layout = () => {
       }
     },
     [location, navigate],
-  );
-
-  useWebviewListener(
-    "setupLocalConfig",
-    async () => {
-      onboardingCard.open(OnboardingModes.LOCAL);
-    },
-    [],
-  );
-
-  useWebviewListener(
-    "freeTrialExceeded",
-    async () => {
-      dispatch(setShowDialog(true));
-      onboardingCard.setActiveTab(OnboardingModes.MODELS_ADD_ON);
-      dispatch(
-        setDialogMessage(
-          <div className="flex-1">
-            <OnboardingCard isDialog />
-          </div>,
-        ),
-      );
-    },
-    [],
-  );
-
-  useWebviewListener(
-    "setupApiKey",
-    async () => {
-      onboardingCard.open(OnboardingModes.API_KEY);
-    },
-    [],
-  );
-
-  useWebviewListener(
-    "focusEdit",
-    async () => {
-      await ideMessenger.request("edit/addCurrentSelection", undefined);
-      await dispatch(enterEdit({ editorContent: mainEditor?.getJSON() }));
-      mainEditor?.commands.focus();
-    },
-    [ideMessenger, mainEditor],
-  );
-
-  useWebviewListener(
-    "setCodeToEdit",
-    async (payload) => {
-      dispatch(
-        setCodeToEdit({
-          codeToEdit: payload,
-        }),
-      );
-    },
-    [],
-  );
-
-  useWebviewListener(
-    "exitEditMode",
-    async () => {
-      await dispatch(exitEdit({}));
-    },
-    [],
-  );
-
-  useWebviewListener(
-    "generateRule",
-    async () => {
-      dispatch(setShowDialog(true));
-      dispatch(setDialogMessage(<GenerateRuleDialog />));
-    },
-    [],
   );
 
   useEffect(() => {
@@ -227,12 +84,6 @@ const Layout = () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
-  useEffect(() => {
-    if (isNewUserOnboarding() && isHome) {
-      onboardingCard.open();
-    }
-  }, [isHome]);
 
   return (
     <LocalStorageProvider>

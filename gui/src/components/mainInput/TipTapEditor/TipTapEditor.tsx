@@ -14,7 +14,8 @@ import useIsOSREnabled from "../../../hooks/useIsOSREnabled";
 import useUpdatingRef from "../../../hooks/useUpdatingRef";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { selectSelectedChatModel } from "../../../redux/slices/configSlice";
-import InputToolbar, { ToolbarOptions } from "../InputToolbar";
+// InputToolbar removed - not used in config pages
+type ToolbarOptions = any;
 import { ComboBoxItem } from "../types";
 import { DragOverlay } from "./components/DragOverlay";
 import { InputBoxDiv } from "./components/StyledComponents";
@@ -272,31 +273,6 @@ function TipTapEditorInner(props: TipTapEditorProps) {
           onClick={(event) => {
             event.stopPropagation();
           }}
-        />
-        <InputToolbar
-          isMainInput={props.isMainInput}
-          toolbarOptions={props.toolbarOptions}
-          activeKey={activeKey}
-          hidden={shouldHideToolbar && !props.isMainInput}
-          onAddContextItem={() => insertCharacterWithWhitespace("@")}
-          onEnter={onEnter}
-          onImageFileSelected={(file) => {
-            void handleImageFile(ideMessenger, file).then((result) => {
-              if (!editor) {
-                return;
-              }
-              if (result) {
-                const [_, dataUrl] = result;
-                const { schema } = editor.state;
-                const node = schema.nodes.image.create({ src: dataUrl });
-                editor.commands.command(({ tr }) => {
-                  tr.insert(0, node);
-                  return true;
-                });
-              }
-            });
-          }}
-          disabled={isStreaming}
         />
       </div>
 

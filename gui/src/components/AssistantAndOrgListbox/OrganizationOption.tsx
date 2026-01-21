@@ -87,7 +87,8 @@ export function OrganizationOption({
             className="text-description-muted hover:enabled:text-foreground my-0 h-4 w-4 p-0 opacity-0 transition-opacity group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(CONFIG_ROUTES.ORGANIZATIONS);
+              // Organizations section removed - navigate to configs instead
+              navigate(CONFIG_ROUTES.CONFIGS);
               onClose(); // Close the listbox
             }}
           >

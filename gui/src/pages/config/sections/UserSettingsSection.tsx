@@ -58,14 +58,6 @@ export function UserSettingsSection() {
   };
 
   // TODO defaults are in multiple places, should be consolidated and probably not explicit here
-  const showSessionTabs = config.ui?.showSessionTabs ?? false;
-  const continueAfterToolRejection =
-    config.ui?.continueAfterToolRejection ?? false;
-  const codeWrap = config.ui?.codeWrap ?? false;
-  const showChatScrollbar = config.ui?.showChatScrollbar ?? false;
-  const readResponseTTS = config.experimental?.readResponseTTS ?? false;
-  const displayRawMarkdown = config.ui?.displayRawMarkdown ?? false;
-  const disableSessionTitles = config.disableSessionTitles ?? false;
   const useCurrentFileAsContext =
     config.experimental?.useCurrentFileAsContext ?? false;
   const enableExperimentalTools =
@@ -109,63 +101,6 @@ export function UserSettingsSection() {
       <div className="flex flex-col">
         <ConfigHeader title="User Settings" />
         <div className="space-y-6">
-          {/* Chat Interface Settings */}
-          <div>
-            <ConfigHeader title="Chat" variant="sm" />
-            <Card>
-              <div className="flex flex-col gap-4">
-                <UserSetting
-                  type="toggle"
-                  title="Show Session Tabs"
-                  description="Displays tabs above the chat as an alternative way to organize and access your sessions."
-                  value={showSessionTabs}
-                  onChange={(value) => handleUpdate({ showSessionTabs: value })}
-                />
-                <UserSetting
-                  type="toggle"
-                  title="Wrap Codeblocks"
-                  description="Wraps long lines in code blocks instead of showing horizontal scroll."
-                  value={codeWrap}
-                  onChange={(value) => handleUpdate({ codeWrap: value })}
-                />
-                <UserSetting
-                  type="toggle"
-                  title="Show Chat Scrollbar"
-                  description="Enables a scrollbar in the chat window."
-                  value={showChatScrollbar}
-                  onChange={(value) =>
-                    handleUpdate({ showChatScrollbar: value })
-                  }
-                />
-                <UserSetting
-                  type="toggle"
-                  title="Text-to-Speech Output"
-                  description="Reads LLM responses aloud with TTS."
-                  value={readResponseTTS}
-                  onChange={(value) => handleUpdate({ readResponseTTS: value })}
-                />
-                <UserSetting
-                  type="toggle"
-                  title="Enable Session Titles"
-                  description="Generates summary titles for each chat session after the first message, using the current Chat model."
-                  value={!disableSessionTitles}
-                  onChange={(value) =>
-                    handleUpdate({ disableSessionTitles: !value })
-                  }
-                />
-                <UserSetting
-                  type="toggle"
-                  title="Format Markdown"
-                  description="If off, shows responses as raw text."
-                  value={!displayRawMarkdown}
-                  onChange={(value) =>
-                    handleUpdate({ displayRawMarkdown: !value })
-                  }
-                />
-              </div>
-            </Card>
-          </div>
-
           {/* Telemetry Settings */}
           <div>
             <ConfigHeader title="Telemetry" variant="sm" />
@@ -310,15 +245,6 @@ export function UserSettingsSection() {
                     value={codebaseToolCallingOnly}
                     onChange={(value) =>
                       handleUpdate({ codebaseToolCallingOnly: value })
-                    }
-                  />
-                  <UserSetting
-                    type="toggle"
-                    title="Stream after tool rejection"
-                    description=" streaming will continue after the tool call is rejected."
-                    value={continueAfterToolRejection}
-                    onChange={(value) =>
-                      handleUpdate({ continueAfterToolRejection: value })
                     }
                   />
 

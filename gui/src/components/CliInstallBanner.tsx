@@ -5,8 +5,6 @@ import { IdeMessengerContext } from "../context/IdeMessenger";
 import useCopy from "../hooks/useCopy";
 import { getPlatform } from "../util";
 import { getLocalStorage, setLocalStorage } from "../util/localStorage";
-import { CopyButton } from "./StyledMarkdownPreview/StepContainerPreToolbar/CopyButton";
-import { RunInTerminalButton } from "./StyledMarkdownPreview/StepContainerPreToolbar/RunInTerminalButton";
 import { Card } from "./ui";
 
 interface CliInstallBannerProps {
@@ -151,12 +149,12 @@ export function CliInstallBanner({
                 )}
               </div>
               <div className="bg-background rounded-r-default flex items-center gap-2 px-3 py-3">
-                <CopyButton
-                  text={`npm i -g @continuedev/cli && cn "Explore this repo and provide a concise summary of it's contents"`}
-                />
-                <RunInTerminalButton
-                  command={`npm i -g @continuedev/cli && cn "Explore this repo and provide a concise summary of it's contents"`}
-                />
+                <button
+                  onClick={handleCommandClick}
+                  className="text-foreground text-xs hover:brightness-125"
+                >
+                  Copy
+                </button>
               </div>
             </div>
           </div>

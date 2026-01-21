@@ -1,9 +1,9 @@
 import { ModelRole } from "@continuedev/config-yaml";
 import { ModelDescription } from "core";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import Shortcut from "../../../components/gui/Shortcut";
 import { useEditModel } from "../../../components/mainInput/Lump/useEditBlock";
-import { Card, Divider, Toggle } from "../../../components/ui";
+import { Card, Divider } from "../../../components/ui";
 import { useAuth } from "../../../context/Auth";
 import { IdeMessengerContext } from "../../../context/IdeMessenger";
 import { AddModelForm } from "../../../forms/AddModelForm";
@@ -22,7 +22,6 @@ export function ModelsSection() {
   const config = useAppSelector((state) => state.config.config);
   const jetbrains = isJetBrains();
   const metaKey = getMetaKeyLabel();
-  const [showAdditionalRoles, setShowAdditionalRoles] = useState(false);
 
   function handleRoleUpdate(role: ModelRole, model: ModelDescription | null) {
     if (!model) {
@@ -71,37 +70,6 @@ export function ModelsSection() {
       />
 
       <Card>
-        <ModelRoleRow
-          role="chat"
-          displayName="Chat"
-          shortcut={
-            <span className="text-2xs text-description-muted">
-              (<Shortcut>{`cmd ${jetbrains ? "J" : "L"}`}</Shortcut>)
-            </span>
-          }
-          description={
-            <span>
-              Used in Chat, Plan, Agent mode (
-              <a
-                href="https://docs.continue.dev/features/chat/quick-start"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-inherit underline hover:brightness-125"
-              >
-                Learn more
-              </a>
-              )
-            </span>
-          }
-          models={config.modelsByRole.chat}
-          selectedModel={config.selectedModelByRole.chat ?? undefined}
-          onSelect={(model) => handleRoleUpdate("chat", model)}
-          onConfigure={handleConfigureModel}
-          setupURL="https://docs.continue.dev/chat/model-setup"
-        />
-
-        <Divider />
-
         <ModelRoleRow
           role="autocomplete"
           displayName="Autocomplete"
@@ -160,54 +128,6 @@ export function ModelsSection() {
             />
           </>
         )}
-      </Card>
-
-      <Card>
-        <Toggle
-          isOpen={showAdditionalRoles}
-          onToggle={() => setShowAdditionalRoles(!showAdditionalRoles)}
-          title="Additional model roles"
-          subtitle="Apply, Embed, Rerank"
-        >
-          <div className="flex flex-col">
-            <ModelRoleRow
-              role="apply"
-              displayName="Apply"
-              description="Used to apply generated codeblocks to files"
-              models={config.modelsByRole.apply}
-              selectedModel={config.selectedModelByRole.apply ?? undefined}
-              onSelect={(model) => handleRoleUpdate("apply", model)}
-              onConfigure={handleConfigureModel}
-              setupURL="https://docs.continue.dev/customize/model-roles/apply"
-            />
-
-            <Divider />
-
-            <ModelRoleRow
-              role="embed"
-              displayName="Embed"
-              description="Used to generate and query embeddings for the @codebase and @docs context providers"
-              models={config.modelsByRole.embed}
-              selectedModel={config.selectedModelByRole.embed ?? undefined}
-              onSelect={(model) => handleRoleUpdate("embed", model)}
-              onConfigure={handleConfigureModel}
-              setupURL="https://docs.continue.dev/customize/model-roles/embeddings"
-            />
-
-            <Divider />
-
-            <ModelRoleRow
-              role="rerank"
-              displayName="Rerank"
-              description="Used for reranking results from the @codebase and @docs context providers"
-              models={config.modelsByRole.rerank}
-              selectedModel={config.selectedModelByRole.rerank ?? undefined}
-              onSelect={(model) => handleRoleUpdate("rerank", model)}
-              onConfigure={handleConfigureModel}
-              setupURL="https://docs.continue.dev/customize/model-roles/reranking"
-            />
-          </div>
-        </Toggle>
       </Card>
     </div>
   );

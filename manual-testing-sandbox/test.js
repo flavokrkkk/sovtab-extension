@@ -30,8 +30,17 @@ class Calculator {
   }
 
   generateMatrix(n) {
-    this.result = new Array(n).fill(0);
-    console.log("its matrix");
+    const matrix = [];
+    for (let i = 0; i < n; i++) {
+      matrix.push([]);
+      for (let j = 0; j < n; j++) {
+        matrix[i].push(0);
+      }
+    }
+  }
+
+  sayHello(name) {
+    console.log(`Hello ${name}`);
   }
 
   getResult() {
@@ -44,3 +53,17 @@ class Calculator {
     return this;
   }
 }
+
+const bubbleSort = (arr) => {
+  for (let i = 0; i < arr.length - 1; i++) {
+    for (let j = 0; j < arr.length - i - 1; j++) {
+      if (arr[j] > arr[j + 1]) {
+        let temp = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = temp;
+      }
+    }
+  }
+};
+
+bubbleSort([4, 12, 1, 5]);

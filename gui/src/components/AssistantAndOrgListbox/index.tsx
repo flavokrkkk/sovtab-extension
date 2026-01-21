@@ -85,20 +85,7 @@ export function AssistantAndOrgListbox({
     close();
   }
 
-  function onOrganizationsConfig() {
-    navigate(CONFIG_ROUTES.ORGANIZATIONS);
-    close();
-  }
-
-  function onRulesConfig() {
-    navigate(CONFIG_ROUTES.RULES);
-    close();
-  }
-
-  function onToolsConfig() {
-    navigate(CONFIG_ROUTES.TOOLS);
-    close();
-  }
+  // Removed onOrganizationsConfig, onRulesConfig, onToolsConfig - sections removed
 
   useEffect(() => {
     let lastToggleTime = 0;
@@ -206,17 +193,6 @@ export function AssistantAndOrgListbox({
                       className="my-0 h-5 w-5 p-0"
                     >
                       <PlusIcon className="text-description h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOrganizationsConfig();
-                      }}
-                      variant="ghost"
-                      size="sm"
-                      className="my-0 h-5 w-5 p-0"
-                    >
-                      <Cog6ToothIcon className="text-description h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </div>

@@ -10,9 +10,6 @@ import { useNavigate } from "react-router-dom";
 import Shortcut from "../../../components/gui/Shortcut";
 import { Card } from "../../../components/ui";
 import { IdeMessengerContext } from "../../../context/IdeMessenger";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { setOnboardingCard } from "../../../redux/slices/uiSlice";
-import { saveCurrentSession } from "../../../redux/thunks/session";
 import { isJetBrains } from "../../../util";
 import { ROUTES } from "../../../util/navigation";
 import { ConfigHeader } from "../components/ConfigHeader";
@@ -149,26 +146,10 @@ const jetbrainsShortcuts: Omit<KeyboardShortcutProps, "isEven">[] = [
 export function HelpSection() {
   const ideMessenger = useContext(IdeMessengerContext);
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-
-  const currentSession = useAppSelector((state) => state.session);
 
   const shortcuts = useMemo(() => {
     return isJetBrains() ? jetbrainsShortcuts : vscodeShortcuts;
   }, []);
-
-  const handleViewSessionData = async () => {
-    const sessionData = await ideMessenger.request("history/load", {
-      id: currentSession.id,
-    });
-
-    if (sessionData.status === "success") {
-      await ideMessenger.request("showVirtualFile", {
-        name: `${sessionData.content.title}.json`,
-        content: JSON.stringify(sessionData.content, null, 2),
-      });
-    }
-  };
 
   return (
     <div className="flex flex-col">
@@ -225,58 +206,7 @@ export function HelpSection() {
         <div>
           <h3 className="mb-3 text-base font-medium">Tools</h3>
           <Card className="!p-0">
-            <div className="flex flex-col">
-              <ConfigRow
-                title="Token usage"
-                description="Daily token usage across models"
-                icon={TableCellsIcon}
-                onClick={() => navigate(ROUTES.STATS)}
-              />
-
-              {currentSession.history.length > 0 &&
-                !currentSession.isStreaming && (
-                  <ConfigRow
-                    title="View current session history"
-                    description="Open the current chat session file for troubleshooting"
-                    icon={NumberedListIcon}
-                    onClick={handleViewSessionData}
-                  />
-                )}
-
-              <ConfigRow
-                title="Quickstart"
-                description="Reopen the quickstart and tutorial file"
-                icon={DocumentArrowUpIcon}
-                onClick={async () => {
-                  navigate("/");
-                  // Used to clear the chat panel before showing onboarding card
-                  await dispatch(
-                    saveCurrentSession({
-                      openNewSession: true,
-                      generateTitle: true,
-                    }),
-                  );
-                  dispatch(
-                    setOnboardingCard({
-                      show: true,
-                      activeTab: undefined,
-                    }),
-                  );
-                  ideMessenger.post("showTutorial", undefined);
-                }}
-              />
-
-              {process.env.NODE_ENV === "development" && (
-                <ConfigRow
-                  title="Theme Test Page"
-                  description="Development page for testing themes"
-                  icon={PaintBrushIcon}
-                  onClick={async () => {
-                    navigate(ROUTES.THEME);
-                  }}
-                />
-              )}
-            </div>
+            <div className="flex flex-col"></div>
           </Card>
         </div>
 
