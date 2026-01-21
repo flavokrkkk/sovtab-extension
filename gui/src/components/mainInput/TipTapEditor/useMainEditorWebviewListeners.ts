@@ -1,6 +1,13 @@
 import { Editor } from "@tiptap/react";
 import { InputModifiers } from "core";
-import { rifWithContentsToContextItem } from "core/commands/util";
+// core/commands/util removed - not needed for autocomplete
+function rifWithContentsToContextItem(rif: any): any {
+  return {
+    description: rif.filepath,
+    range: rif.range,
+    content: rif.contents || "",
+  };
+}
 import { MutableRefObject } from "react";
 import { useWebviewListener } from "../../../hooks/useWebviewListener";
 import { useAppSelector } from "../../../redux/hooks";

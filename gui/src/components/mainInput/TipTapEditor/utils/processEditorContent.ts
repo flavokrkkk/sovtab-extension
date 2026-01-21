@@ -8,7 +8,22 @@ import {
   RangeInFile,
   TextMessagePart,
 } from "core";
-import { ctxItemToRifWithContents } from "core/commands/util";
+// core/commands/util removed - not needed for autocomplete
+// Simple replacement for ctxItemToRifWithContents
+function ctxItemToRifWithContents(
+  contextItem: ContextItemWithId,
+  includeContents: boolean,
+): RangeInFile {
+  const item = contextItem as any;
+  return {
+    filepath: item.description || item.name || "",
+    range: item.range || {
+      start: { line: 0, character: 0 },
+      end: { line: 0, character: 0 },
+    },
+    ...(includeContents && item.content ? { contents: item.content } : {}),
+  };
+}
 import { getUriDescription } from "core/util/uri";
 import { CodeBlock, Mention, PromptBlock } from "../extensions";
 import { GetContextRequest } from "./types";

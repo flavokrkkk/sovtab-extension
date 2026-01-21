@@ -1,6 +1,13 @@
-import { validateMultiEdit } from "core/edit/searchAndReplace/multiEditValidation";
-import { executeMultiFindAndReplace } from "core/edit/searchAndReplace/performReplace";
-import { validateSearchAndReplaceFilepath } from "core/edit/searchAndReplace/validateArgs";
+// core/edit/searchAndReplace removed - not needed for autocomplete
+const validateMultiEdit = (args: any) => ({ edits: [] });
+const executeMultiFindAndReplace = async (
+  _fileContents: string,
+  _edits: any[],
+): Promise<string> => {
+  return _fileContents; // Edit functionality removed - return original content
+};
+const validateSearchAndReplaceFilepath = async (filepath: string, ide: any) =>
+  filepath;
 import { v4 as uuid } from "uuid";
 import { applyForEditTool } from "../../redux/thunks/handleApplyStateUpdate";
 import { ClientToolImpl } from "./callClientTool";
@@ -19,7 +26,7 @@ export const multiEditImpl: ClientToolImpl = async (
   );
 
   const editingFileContents = await extras.ideMessenger.ide.readFile(fileUri);
-  const newFileContents = executeMultiFindAndReplace(
+  const newFileContents = await executeMultiFindAndReplace(
     editingFileContents,
     edits,
   );

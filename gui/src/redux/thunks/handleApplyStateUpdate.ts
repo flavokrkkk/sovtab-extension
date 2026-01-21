@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { ApplyState, ApplyToFilePayload } from "core";
-import { EDIT_MODE_STREAM_ID } from "core/edit/constants";
+// core/edit/constants removed - not needed for autocomplete
+const EDIT_MODE_STREAM_ID = "edit-mode-stream";
 import { logAgentModeEditOutcome } from "../../util/editOutcomeLogger";
 import {
   selectApplyStateByToolCallId,

@@ -1,5 +1,15 @@
 import { ContextItem, ToolCallState } from "core";
-import { BuiltInToolNames } from "core/tools/builtIn";
+// core/tools removed - not needed for autocomplete
+const BuiltInToolNames = {
+  FileGlobSearch: "FileGlobSearch",
+  ReadFile: "ReadFile",
+  LSTool: "LSTool",
+  CreateNewFile: "CreateNewFile",
+  EditExistingFile: "EditExistingFile",
+  SingleFindAndReplace: "SingleFindAndReplace",
+  MultiEdit: "MultiEdit",
+  RunTerminalCommand: "RunTerminalCommand",
+};
 import { ContinueError, ContinueErrorReason } from "core/util/errors";
 import { IIdeMessenger } from "../../context/IdeMessenger";
 import { AppThunkDispatch, RootState } from "../../redux/store";

@@ -11,14 +11,36 @@ import {
 import { chatMessageIsEmpty } from "core/llm/messages";
 import { getSystemMessageWithRules } from "core/llm/rules/getSystemMessageWithRules";
 import { RulePolicies } from "core/llm/rules/types";
-import { BuiltInToolNames } from "core/tools/builtIn";
-import {
-  CANCELLED_TOOL_CALL_MESSAGE,
-  ERRORED_TOOL_CALL_OUTPUT_MESSAGE,
-  NO_TOOL_CALL_OUTPUT_MESSAGE,
-} from "core/tools/constants";
-import { convertToolCallStatesToSystemCallsAndOutput } from "core/tools/systemMessageTools/convertSystemTools";
-import { SystemMessageToolsFramework } from "core/tools/systemMessageTools/types";
+// core/tools removed - not needed for autocomplete
+const BuiltInToolNames = {
+  FileGlobSearch: "FileGlobSearch",
+  ReadFile: "ReadFile",
+  LSTool: "LSTool",
+  CreateNewFile: "CreateNewFile",
+  EditExistingFile: "EditExistingFile",
+  SingleFindAndReplace: "SingleFindAndReplace",
+  MultiEdit: "MultiEdit",
+  RunTerminalCommand: "RunTerminalCommand",
+};
+const CANCELLED_TOOL_CALL_MESSAGE = "Tool call was cancelled";
+const ERRORED_TOOL_CALL_OUTPUT_MESSAGE = "Tool call errored";
+const NO_TOOL_CALL_OUTPUT_MESSAGE = "No output from tool call";
+const convertToolCallStatesToSystemCallsAndOutput = (
+  _message: any,
+  _toolCallStates: any,
+  _useSystemToolsFramework?: any,
+) => ({
+  systemCalls: [],
+  outputs: [],
+  userMessage: _message as any,
+  assistantMessage: _message as any,
+});
+type SystemMessageToolsFramework =
+  | "openai"
+  | "anthropic"
+  | "google"
+  | "mistral"
+  | "none";
 import { findLast, findLastIndex } from "core/util/findLast";
 import {
   normalizeToMessageParts,
@@ -111,14 +133,18 @@ export function constructMessages(
             item.toolCallStates ?? [],
             useSystemToolsFramework,
           );
-        msgs.push({
-          message: assistantMessage,
-          ctxItems: [],
-        });
-        msgs.push({
-          message: userMessage,
-          ctxItems: [],
-        });
+        if (assistantMessage) {
+          msgs.push({
+            message: assistantMessage,
+            ctxItems: [],
+          });
+        }
+        if (userMessage) {
+          msgs.push({
+            message: userMessage,
+            ctxItems: [],
+          });
+        }
         continue;
       }
 

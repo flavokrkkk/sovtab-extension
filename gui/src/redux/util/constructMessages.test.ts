@@ -9,11 +9,19 @@ import {
   ToolResultChatMessage,
   UserChatMessage,
 } from "core";
-import { BuiltInToolNames } from "core/tools/builtIn";
-import {
-  CANCELLED_TOOL_CALL_MESSAGE,
-  NO_TOOL_CALL_OUTPUT_MESSAGE,
-} from "core/tools/constants";
+// core/tools removed - not needed for autocomplete
+const BuiltInToolNames = {
+  FileGlobSearch: "FileGlobSearch",
+  ReadFile: "ReadFile",
+  LSTool: "LSTool",
+  CreateNewFile: "CreateNewFile",
+  EditExistingFile: "EditExistingFile",
+  SingleFindAndReplace: "SingleFindAndReplace",
+  MultiEdit: "MultiEdit",
+  RunTerminalCommand: "RunTerminalCommand",
+};
+const CANCELLED_TOOL_CALL_MESSAGE = "Tool call was cancelled";
+const NO_TOOL_CALL_OUTPUT_MESSAGE = "No output from tool call";
 import { renderChatMessage } from "core/util/messageContent";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { constructMessages } from "./constructMessages";

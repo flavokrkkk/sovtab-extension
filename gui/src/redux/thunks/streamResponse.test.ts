@@ -42,8 +42,15 @@ vi.mock(
 );
 
 import { ModelDescription } from "core";
-import { serializeTool } from "core/tools";
-import { grepSearchTool } from "core/tools/definitions";
+// core/tools removed - not needed for autocomplete
+const serializeTool = (tool: any) => ({
+  function: {
+    name: tool.name || "",
+    description: tool.description || "",
+    parameters: {},
+  },
+});
+const grepSearchTool = { name: "grepSearch", description: "" };
 import posthog from "posthog-js";
 import { resolveEditorContent } from "../../components/mainInput/TipTapEditor/utils/resolveEditorContent";
 import { RootState } from "../store";

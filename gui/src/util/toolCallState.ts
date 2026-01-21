@@ -1,6 +1,16 @@
 import { ToolCallDelta, ToolCallState } from "core";
 import React from "react";
-import { BuiltInToolNames } from "core/tools/builtIn";
+// core/tools removed - not needed for autocomplete
+const BuiltInToolNames = {
+  FileGlobSearch: "FileGlobSearch",
+  ReadFile: "ReadFile",
+  LSTool: "LSTool",
+  CreateNewFile: "CreateNewFile",
+  EditExistingFile: "EditExistingFile",
+  SingleFindAndReplace: "SingleFindAndReplace",
+  MultiEdit: "MultiEdit",
+  RunTerminalCommand: "RunTerminalCommand",
+};
 import { incrementalParseJson } from "core/util/incrementalParseJson";
 
 // Merge streamed tool calls

@@ -1,6 +1,7 @@
 import { createAsyncThunk, unwrapResult } from "@reduxjs/toolkit";
 import { ContextItem } from "core";
-import { CLIENT_TOOLS_IMPLS } from "core/tools/builtIn";
+// core/tools removed - not needed for autocomplete
+const CLIENT_TOOLS_IMPLS: Record<string, any> = {};
 import { ContinueError, ContinueErrorReason } from "core/util/errors";
 import posthog from "posthog-js";
 import { callClientTool } from "../../util/clientTools/callClientTool";
@@ -66,8 +67,8 @@ export const callToolById = createAsyncThunk<
   // Errors that occur outside specifically calling the tool
   // Should not be caught here - should be handled as normal stream errors
   if (
-    CLIENT_TOOLS_IMPLS.find(
-      (toolName) => toolName === toolCallState.toolCall.function.name,
+    Object.keys(CLIENT_TOOLS_IMPLS).includes(
+      toolCallState.toolCall.function.name,
     )
   ) {
     // Tool is called on client side
