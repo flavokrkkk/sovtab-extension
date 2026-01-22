@@ -1,5 +1,10 @@
-import { NextEditProvider } from "core/nextEdit/NextEditProvider";
-import { NextEditOutcome } from "core/nextEdit/types";
+// nextEdit module removed - not needed for autocomplete
+const NextEditProvider = {
+  getInstance: () => ({
+    deleteChain: async () => {},
+  }),
+};
+type NextEditOutcome = any;
 // @ts-ignore
 import svgBuilder from "svg-builder";
 import * as vscode from "vscode";

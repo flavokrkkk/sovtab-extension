@@ -2,7 +2,8 @@ import { IDE, Position, Range, RangeInFileWithNextEditInfo } from "core";
 import { AutocompleteCodeSnippet } from "core/autocomplete/snippets/types";
 import { GetLspDefinitionsFunction } from "core/autocomplete/types";
 import { ConfigHandler } from "core/config/ConfigHandler";
-import { RecentlyEditedRange } from "core/nextEdit/types";
+// nextEdit module removed - not needed for autocomplete
+type RecentlyEditedRange = any;
 import * as vscode from "vscode";
 import { ContinueCompletionProvider } from "../autocomplete/completionProvider";
 

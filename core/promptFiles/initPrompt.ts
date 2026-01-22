@@ -1,6 +1,12 @@
 import { SlashCommandWithSource } from "..";
 import { RULES_MARKDOWN_FILENAME } from "../llm/rules/constants";
-import { BuiltInToolNames } from "../tools/builtIn";
+// tools module removed - not needed for autocomplete
+const BuiltInToolNames = {
+  FileGlobSearch: "glob",
+  ReadFile: "read_file",
+  LSTool: "ls",
+  CreateNewFile: "create_file",
+} as const;
 
 const initFilename = "CONTINUE.md";
 

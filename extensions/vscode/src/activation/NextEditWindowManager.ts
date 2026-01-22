@@ -6,9 +6,25 @@ import * as vscode from "vscode";
 import { DiffChar, DiffLine } from "core";
 import { CodeRenderer } from "core/codeRenderer/CodeRenderer";
 import { myersCharDiff } from "core/diff/myers";
-import { getOffsetPositionAtLastNewLine } from "core/nextEdit/diff/diff";
-import { NextEditLoggingService } from "core/nextEdit/NextEditLoggingService";
-import { NextEditProvider } from "core/nextEdit/NextEditProvider";
+// nextEdit module removed - not needed for autocomplete
+const getOffsetPositionAtLastNewLine = (
+  _diffLines: any,
+  _lineContent: string,
+  _lineOffset: number,
+) => {
+  return { line: 0, character: 0 };
+};
+const NextEditLoggingService = {
+  getInstance: () => ({
+    cancelRejectionTimeout: () => {},
+    cancelRejectionTimeoutButKeepCompletionId: () => {},
+  }),
+};
+const NextEditProvider = {
+  getInstance: () => ({
+    deleteChain: async () => {},
+  }),
+};
 import { getThemeString } from "../util/getTheme";
 import {
   HandlerPriority,

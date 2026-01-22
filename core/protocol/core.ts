@@ -49,8 +49,9 @@ import {
   ControlPlaneSessionInfo,
 } from "../control-plane/AuthTypes";
 import { CreditStatus, RemoteSessionMetadata } from "../control-plane/client";
-import { ProcessedItem } from "../nextEdit/NextEditPrefetchQueue";
-import { NextEditOutcome } from "../nextEdit/types";
+// nextEdit module removed - not needed for autocomplete
+type ProcessedItem = any;
+type NextEditOutcome = any;
 import { ContinueErrorReason } from "../util/errors";
 
 export enum OnboardingModes {

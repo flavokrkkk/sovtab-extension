@@ -44,10 +44,15 @@ import { VsCodeIde } from "../VsCodeIde";
 import { ConfigYamlDocumentLinkProvider } from "./ConfigYamlDocumentLinkProvider";
 import { VsCodeMessenger } from "./VsCodeMessenger";
 
-import { modelSupportsNextEdit } from "core/llm/autodetect";
-import { NEXT_EDIT_MODELS } from "core/llm/constants";
-import { NextEditProvider } from "core/nextEdit/NextEditProvider";
-import { isNextEditTest } from "core/nextEdit/utils";
+// nextEdit module removed - not needed for autocomplete
+const modelSupportsNextEdit = () => false;
+const NEXT_EDIT_MODELS = { INSTINCT: "instinct" };
+const NextEditProvider = {
+  getInstance: () => ({
+    deleteChain: async () => {},
+  }),
+};
+const isNextEditTest = () => false;
 import { JumpManager } from "../activation/JumpManager";
 import setupNextEditWindowManager, {
   NextEditWindowManager,
@@ -87,92 +92,11 @@ export class VsCodeExtension {
 
   private ARBITRARY_TYPING_DELAY = 2000;
 
-  /**
-   * This is how you turn next edit on or off at the extension level.
-   * This is called on config reload and autocomplete menu updates.
-   * This is also the place you want to check to enable/disable next edit during e2e tests,
-   * because it tends to stain other e2e tests and make them fail.
-   */
+  // updateNextEditState removed - nextEdit not needed for autocomplete
   private async updateNextEditState(
     context: vscode.ExtensionContext,
   ): Promise<void> {
-    const { config: continueConfig } = await this.configHandler.loadConfig();
-    const autocompleteModel = continueConfig?.selectedModelByRole.autocomplete;
-    const vscodeConfig = vscode.workspace.getConfiguration(EXTENSION_NAME);
-
-    const modelSupportsNext =
-      autocompleteModel &&
-      modelSupportsNextEdit(
-        autocompleteModel.capabilities,
-        autocompleteModel.model,
-        autocompleteModel.title,
-      );
-
-    // Use smart defaults.
-    let nextEditEnabled = vscodeConfig.get<boolean>("enableNextEdit");
-    if (nextEditEnabled === undefined) {
-      // First time - set smart default.
-      nextEditEnabled = modelSupportsNext ?? false;
-      await vscodeConfig.update(
-        "enableNextEdit",
-        nextEditEnabled,
-        vscode.ConfigurationTarget.Global,
-      );
-    }
-
-    // Check if Next Edit is enabled but model doesn't support it.
-    if (
-      nextEditEnabled &&
-      !modelSupportsNext &&
-      !isNextEditTest() &&
-      process.env.CONTINUE_E2E_NON_NEXT_EDIT_TEST === "true"
-    ) {
-      vscode.window
-        .showWarningMessage(
-          `The current autocomplete model (${autocompleteModel?.title || "unknown"}) does not support Next Edit.`,
-          "Disable Next Edit",
-          "Select different model",
-        )
-        .then((selection) => {
-          if (selection === "Disable Next Edit") {
-            vscodeConfig.update(
-              "enableNextEdit",
-              false,
-              vscode.ConfigurationTarget.Global,
-            );
-          } else if (selection === "Select different model") {
-            vscode.commands.executeCommand(
-              "continue.openTabAutocompleteConfigMenu",
-            );
-          }
-        });
-    }
-
-    const shouldEnableNextEdit =
-      (modelSupportsNext && nextEditEnabled) || isNextEditTest();
-
-    if (shouldEnableNextEdit) {
-      await setupNextEditWindowManager(context);
-      this.activateNextEdit();
-      await NextEditWindowManager.freeTabAndEsc();
-
-      const jumpManager = JumpManager.getInstance();
-      jumpManager.registerSelectionChangeHandler();
-
-      const ghostTextAcceptanceTracker =
-        GhostTextAcceptanceTracker.getInstance();
-      ghostTextAcceptanceTracker.registerSelectionChangeHandler();
-
-      const nextEditWindowManager = NextEditWindowManager.getInstance();
-      nextEditWindowManager.registerSelectionChangeHandler();
-    } else {
-      NextEditWindowManager.clearInstance();
-      this.deactivateNextEdit();
-      await NextEditWindowManager.freeTabAndEsc();
-
-      JumpManager.clearInstance();
-      GhostTextAcceptanceTracker.clearInstance();
-    }
+    // nextEdit functionality removed
   }
 
   constructor(context: vscode.ExtensionContext) {
@@ -195,33 +119,8 @@ export class VsCodeExtension {
     this.extensionContext = context;
     this.windowId = uuidv4();
 
-    // Check if model supports next edit to determine if we should use full file diff.
-    const getUsingFullFileDiff = async () => {
-      const { config } = await this.configHandler.loadConfig();
-      const autocompleteModel = config?.selectedModelByRole.autocomplete;
-
-      if (!autocompleteModel) {
-        return false;
-      }
-
-      if (
-        !modelSupportsNextEdit(
-          autocompleteModel.capabilities,
-          autocompleteModel.model,
-          autocompleteModel.title,
-        )
-      ) {
-        return false;
-      }
-
-      if (autocompleteModel.model.includes(NEXT_EDIT_MODELS.INSTINCT)) {
-        return false;
-      }
-
-      return true;
-    };
-
-    const usingFullFileDiff = true;
+    // nextEdit removed - not needed for autocomplete
+    const usingFullFileDiff = false;
     const selectionManager = SelectionChangeManager.getInstance();
     selectionManager.initialize(this.ide, usingFullFileDiff);
 
@@ -230,14 +129,11 @@ export class VsCodeExtension {
       async (e, state) => {
         const timeSinceLastDocChange =
           Date.now() - state.lastDocumentChangeTime;
+        // nextEdit removed - not needed for autocomplete
         if (
           state.isTypingSession &&
-          timeSinceLastDocChange < this.ARBITRARY_TYPING_DELAY &&
-          !NextEditWindowManager.getInstance().hasAccepted()
+          timeSinceLastDocChange < this.ARBITRARY_TYPING_DELAY
         ) {
-          // console.debug(
-          //   "VsCodeExtension: typing in progress, preserving chain",
-          // );
           return true;
         }
 
@@ -680,11 +576,12 @@ export class VsCodeExtension {
     this.configHandler.registerCustomContextProvider(contextProvider);
   }
 
+  // activateNextEdit/deactivateNextEdit removed - nextEdit not needed for autocomplete
   public activateNextEdit() {
-    this.completionProvider.activateNextEdit();
+    // nextEdit functionality removed
   }
 
   public deactivateNextEdit() {
-    this.completionProvider.deactivateNextEdit();
+    // nextEdit functionality removed
   }
 }

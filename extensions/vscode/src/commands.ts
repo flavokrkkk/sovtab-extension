@@ -8,7 +8,12 @@ import { EXTENSION_NAME } from "core/control-plane/env";
 import { Core } from "core/core";
 import { walkDirAsync } from "core/indexing/walkDir";
 import { isModelInstaller } from "core/llm";
-import { NextEditLoggingService } from "core/nextEdit/NextEditLoggingService";
+// nextEdit module removed - not needed for autocomplete
+const NextEditLoggingService = {
+  getInstance: () => ({
+    cancelRejectionTimeout: () => {},
+  }),
+};
 import { startLocalLemonade } from "core/util/lemonadeHelper";
 import { startLocalOllama } from "core/util/ollamaHelper";
 import {

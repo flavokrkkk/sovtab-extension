@@ -17,8 +17,7 @@ import {
   SlashCommandDescWithSource,
   Tool,
 } from "../../";
-import { stringifyMcpPrompt } from "../../commands/slash/mcpSlashCommand";
-import { convertRuleBlockToSlashCommand } from "../../commands/slash/ruleBlockSlashCommand";
+// commands module removed - not needed for autocomplete
 import { MCPManagerSingleton } from "../../context/mcp/MCPManagerSingleton";
 import ContinueProxyContextProvider from "../../context/providers/ContinueProxyContextProvider";
 import MCPContextProvider from "../../context/providers/MCPContextProvider";
@@ -29,9 +28,7 @@ import { PolicySingleton } from "../../control-plane/PolicySingleton";
 import { TeamAnalytics } from "../../control-plane/TeamAnalytics.js";
 import ContinueProxy from "../../llm/llms/stubs/ContinueProxy";
 import { initSlashCommand } from "../../promptFiles/initPrompt";
-import { getConfigDependentToolDefinitions } from "../../tools";
-import { encodeMCPToolUri } from "../../tools/callTool";
-import { getMCPToolName } from "../../tools/mcpToolName";
+// tools module removed - not needed for autocomplete
 import { GlobalContext } from "../../util/GlobalContext";
 import { getConfigJsonPath, getConfigYamlPath } from "../../util/paths";
 import { localPathOrUriToPath } from "../../util/pathToUri";
@@ -158,20 +155,7 @@ export default async function doLoadConfig(options: {
   errors.push(...rulesErrors);
   newConfig.rules.unshift(...rules);
 
-  // Convert invokable rules to slash commands
-  for (const rule of newConfig.rules) {
-    if (rule.invokable) {
-      try {
-        const slashCommand = convertRuleBlockToSlashCommand(rule);
-        (newConfig.slashCommands ??= []).push(slashCommand);
-      } catch (e) {
-        errors.push({
-          message: `Error converting invokable rule ${rule.name} to slash command: ${e instanceof Error ? e.message : e}`,
-          fatal: false,
-        });
-      }
-    }
-  }
+  // convertRuleBlockToSlashCommand removed - not needed for autocomplete
 
   newConfig.slashCommands.push(initSlashCommand);
 
@@ -221,23 +205,9 @@ export default async function doLoadConfig(options: {
         message: error,
       });
     });
-    if (server.status === "connected") {
-      const serverTools: Tool[] = server.tools.map((tool) => ({
-        displayTitle: server.name + " " + tool.name,
-        function: {
-          description: tool.description,
-          name: getMCPToolName(server, tool),
-          parameters: tool.inputSchema,
-        },
-        faviconUrl: server.faviconUrl,
-        readonly: false,
-        type: "function" as const,
-        uri: encodeMCPToolUri(server.id, tool.name),
-        group: server.name,
-        originalFunctionName: tool.name,
-      }));
-      newConfig.tools.push(...serverTools);
+    // MCP tools removed - not needed for autocomplete
 
+    if (server.status === "connected") {
       // Fetch MCP prompt content during config load
       const serverSlashCommands: SlashCommandDescWithSource[] =
         await Promise.all(
@@ -251,7 +221,7 @@ export default async function doLoadConfig(options: {
                 prompt.name,
                 {}, // Empty args for now - TODO: handle prompt arguments
               );
-              promptContent = stringifyMcpPrompt(mcpPromptResponse);
+              promptContent = JSON.stringify(mcpPromptResponse); // stringifyMcpPrompt removed
             } catch (error) {
               console.warn(
                 `Failed to fetch MCP prompt content for ${prompt.name} from server ${server.name}:`,
@@ -299,36 +269,8 @@ export default async function doLoadConfig(options: {
     }
   }
 
-  newConfig.tools.push(
-    ...(await getConfigDependentToolDefinitions({
-      rules: newConfig.rules,
-      enableExperimentalTools:
-        newConfig.experimental?.enableExperimentalTools ?? false,
-      isSignedIn,
-      isRemote: await ide.isWorkspaceRemote(),
-      modelName: newConfig.selectedModelByRole.chat?.model,
-      ide,
-    })),
-  );
-
-  // Detect duplicate tool names
-  const counts: Record<string, number> = {};
-  newConfig.tools.forEach((tool) => {
-    if (counts[tool.function.name]) {
-      counts[tool.function.name] = counts[tool.function.name] + 1;
-    } else {
-      counts[tool.function.name] = 1;
-    }
-  });
-
-  Object.entries(counts).forEach(([toolName, count]) => {
-    if (count > 1) {
-      errors!.push({
-        fatal: false,
-        message: `Duplicate (${count}) tools named "${toolName}" detected. Permissions will conflict and usage may be unpredictable`,
-      });
-    }
-  });
+  // getConfigDependentToolDefinitions removed - not needed for autocomplete
+  // Duplicate tool detection removed - tools are not used in autocomplete
 
   const ruleCounts: Record<string, number> = {};
   newConfig.rules.forEach((rule) => {

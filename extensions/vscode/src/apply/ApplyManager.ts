@@ -1,13 +1,26 @@
 import { ConfigHandler } from "core/config/ConfigHandler";
-import { applyCodeBlock } from "core/edit/lazy/applyCodeBlock";
+// edit module removed - not needed for autocomplete
+const applyCodeBlock = async () => ({
+  isInstantApply: false,
+  diffLinesGenerator: async function* () {
+    yield { type: "new" as const, line: "" };
+  },
+});
 import { getUriPathBasename } from "core/util/uri";
 import * as vscode from "vscode";
 
 import { ApplyToFilePayload } from "core";
 import { myersDiff } from "core/diff/myers";
 import { generateLines } from "core/diff/util";
-import { ApplyAbortManager } from "core/edit/applyAbortManager";
-import { streamDiffLines } from "core/edit/streamDiffLines";
+// edit module removed - not needed for autocomplete
+const ApplyAbortManager = {
+  getInstance: () => ({
+    get: () => new AbortController(),
+  }),
+};
+const streamDiffLines = async function* () {
+  yield { type: "new" as const, line: "" };
+};
 import { pruneLinesFromBottom, pruneLinesFromTop } from "core/llm/countTokens";
 import { getMarkdownLanguageTagForFile } from "core/util";
 import { VerticalDiffManager } from "../diff/vertical/manager";

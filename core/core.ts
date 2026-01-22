@@ -18,9 +18,7 @@ import DocsService from "./indexing/docs/DocsService";
 import { countTokens } from "./llm/countTokens";
 import Lemonade from "./llm/llms/Lemonade";
 import Ollama from "./llm/llms/Ollama";
-import { EditAggregator } from "./nextEdit/context/aggregateEdits";
 import { createNewPromptFileV2 } from "./promptFiles/createNewPromptFile";
-import { callTool } from "./tools/callTool";
 import { ChatDescriber } from "./util/chatDescriber";
 import { compactConversation } from "./util/conversationCompaction";
 import { GlobalContext } from "./util/GlobalContext";
@@ -50,7 +48,7 @@ import {
 
 import { ConfigYaml } from "@continuedev/config-yaml";
 import { getDiffFn, GitDiffCache } from "./autocomplete/snippets/gitDiffCache";
-import { stringifyMcpPrompt } from "./commands/slash/mcpSlashCommand";
+// stringifyMcpPrompt removed - MCP commands not needed for autocomplete
 import { createNewAssistantFile } from "./config/createNewAssistantFile";
 import {
   isColocatedRulesFile,
@@ -71,16 +69,12 @@ import { MCPManagerSingleton } from "./context/mcp/MCPManagerSingleton";
 import { performAuth, removeMCPAuth } from "./context/mcp/MCPOauth";
 import { setMdmLicenseKey } from "./control-plane/mdm/mdm";
 import { myersDiff } from "./diff/myers";
-import { ApplyAbortManager } from "./edit/applyAbortManager";
-import { streamDiffLines } from "./edit/streamDiffLines";
+// edit module removed - not needed for autocomplete
 import { shouldIgnore } from "./indexing/shouldIgnore";
 import { walkDirCache } from "./indexing/walkDir";
 import { LLMLogger } from "./llm/logger";
 import { llmStreamChat } from "./llm/streamChat";
-import { BeforeAfterDiff } from "./nextEdit/context/diffFormatting";
-import { processSmallEdit } from "./nextEdit/context/processSmallEdit";
-import { PrefetchQueue } from "./nextEdit/NextEditPrefetchQueue";
-import { NextEditProvider } from "./nextEdit/NextEditProvider";
+// nextEdit module removed - not needed for autocomplete
 import type { FromCoreProtocol, ToCoreProtocol } from "./protocol";
 import { OnboardingModes } from "./protocol/core";
 import type { IMessenger, Message } from "./protocol/messenger";
@@ -92,7 +86,6 @@ export class Core {
   configHandler: ConfigHandler;
   codeBaseIndexer: CodebaseIndexer;
   completionProvider: CompletionProvider;
-  nextEditProvider: NextEditProvider;
   private docsService: DocsService;
   private globalContext = new GlobalContext();
   llmLogger = new LLMLogger();
@@ -270,14 +263,7 @@ export class Core {
             "Initial codebase rules post-walkdir/load reload",
           );
         });
-      this.nextEditProvider = NextEditProvider.initialize(
-        this.configHandler,
-        ide,
-        getLlm,
-        (e) => {},
-        (..._) => Promise.resolve([]),
-        "fineTuned",
-      );
+      // nextEditProvider removed - not needed for autocomplete
 
       this.registerMessageHandlers(ideSettingsPromise);
     } catch (error) {
@@ -510,9 +496,9 @@ export class Core {
         promptName,
         args,
       );
-      const stringifiedPrompt = stringifyMcpPrompt(prompt);
+      // stringifyMcpPrompt removed - MCP not needed for autocomplete
       return {
-        prompt: stringifiedPrompt,
+        prompt: JSON.stringify(prompt),
         description: prompt.description,
       };
     });
@@ -689,128 +675,7 @@ export class Core {
       this.completionProvider.cancel();
     });
 
-    // Next Edit
-    on("nextEdit/predict", async (msg) => {
-      const outcome = await this.nextEditProvider.provideInlineCompletionItems(
-        msg.data.input,
-        undefined,
-        {
-          withChain: msg.data.options?.withChain ?? false,
-          usingFullFileDiff: msg.data.options?.usingFullFileDiff ?? true,
-        },
-      );
-      return outcome;
-      // ? [outcome.completion, outcome.originalEditableRange]
-    });
-    on("nextEdit/accept", async (msg) => {
-      console.log("nextEdit/accept");
-      this.nextEditProvider.accept(msg.data.completionId);
-    });
-    on("nextEdit/reject", async (msg) => {
-      console.log("nextEdit/reject");
-      this.nextEditProvider.reject(msg.data.completionId);
-    });
-    on("nextEdit/startChain", async (msg) => {
-      console.log("nextEdit/startChain");
-      NextEditProvider.getInstance().startChain();
-      return;
-    });
-
-    on("nextEdit/deleteChain", async (msg) => {
-      console.log("nextEdit/deleteChain");
-      await NextEditProvider.getInstance().deleteChain();
-      return;
-    });
-
-    on("nextEdit/isChainAlive", async (msg) => {
-      console.log("nextEdit/isChainAlive");
-      return NextEditProvider.getInstance().chainExists();
-    });
-
-    on("nextEdit/queue/getProcessedCount", async (msg) => {
-      console.log("nextEdit/queue/getProcessedCount");
-      const queue = PrefetchQueue.getInstance();
-      console.log(queue.processedCount);
-      return queue.processedCount;
-    });
-
-    on("nextEdit/queue/dequeueProcessed", async (msg) => {
-      console.log("nextEdit/queue/dequeueProcessed");
-      const queue = PrefetchQueue.getInstance();
-      return queue.dequeueProcessed() || null;
-    });
-
-    // NOTE: This is not used unless prefetch is used.
-    // At this point this is not used because I opted to rely on the model to return multiple diffs than to use prefetching.
-    on("nextEdit/queue/processOne", async (msg) => {
-      console.log("nextEdit/queue/processOne");
-      const { ctx, recentlyVisitedRanges, recentlyEditedRanges } = msg.data;
-      const queue = PrefetchQueue.getInstance();
-
-      await queue.process({
-        ...ctx,
-        recentlyVisitedRanges,
-        recentlyEditedRanges,
-      });
-      return;
-    });
-
-    on("nextEdit/queue/clear", async (msg) => {
-      console.log("nextEdit/queue/clear");
-      const queue = PrefetchQueue.getInstance();
-      queue.clear();
-      return;
-    });
-
-    on("nextEdit/queue/abort", async (msg) => {
-      console.log("nextEdit/queue/abort");
-      const queue = PrefetchQueue.getInstance();
-      queue.abort();
-      return;
-    });
-
-    on("streamDiffLines", async (msg) => {
-      const { config } = await this.configHandler.loadConfig();
-      if (!config) {
-        throw new Error("Failed to load config");
-      }
-
-      const { data } = msg;
-
-      // Title can be an edit, chat, or apply model
-      // Fall back to chat
-      const llm =
-        config.modelsByRole.edit.find((m) => m.title === data.modelTitle) ??
-        config.modelsByRole.apply.find((m) => m.title === data.modelTitle) ??
-        config.modelsByRole.chat.find((m) => m.title === data.modelTitle) ??
-        config.selectedModelByRole.chat;
-
-      if (!llm) {
-        throw new Error("No model selected");
-      }
-
-      const abortManager = ApplyAbortManager.getInstance();
-      const abortController = abortManager.get(
-        data.fileUri ?? "current-file-stream",
-      ); // not super important since currently cancelling apply will cancel all streams it's one file at a time
-
-      return streamDiffLines(
-        data,
-        llm,
-        abortController,
-        undefined,
-        data.includeRulesInSystemMessage ? config.rules : undefined,
-      );
-    });
-
-    on("getDiffLines", (msg) => {
-      return myersDiff(msg.data.oldContent, msg.data.newContent);
-    });
-
-    on("cancelApply", async (msg) => {
-      const abortManager = ApplyAbortManager.getInstance();
-      abortManager.clear(); // for now abort all streams
-    });
+    // nextEdit, streamDiffLines, getDiffLines, cancelApply removed - not needed for autocomplete
 
     on("onboarding/complete", this.handleCompleteOnboarding.bind(this));
 
@@ -938,7 +803,7 @@ export class Core {
 
     on("files/closed", async ({ data }) => {
       console.debug("deleteChain called from files/closed");
-      await NextEditProvider.getInstance().deleteChain();
+      // NextEditProvider.deleteChain removed - not needed for autocomplete
 
       try {
         const fileUris = await this.ide.getOpenFiles();
@@ -994,51 +859,7 @@ export class Core {
       }
     });
 
-    on("files/smallEdit", async ({ data }) => {
-      const EDIT_AGGREGATION_OPTIONS = {
-        deltaT: 1.0,
-        deltaL: 5,
-        maxEdits: 500,
-        maxDuration: 120.0,
-        contextSize: 5,
-      };
-
-      EditAggregator.getInstance(
-        EDIT_AGGREGATION_OPTIONS,
-        (
-          beforeAfterdiff: BeforeAfterDiff,
-          cursorPosBeforeEdit: Position,
-          cursorPosAfterPrevEdit: Position,
-        ) => {
-          void processSmallEdit(
-            beforeAfterdiff,
-            cursorPosBeforeEdit,
-            cursorPosAfterPrevEdit,
-            data.configHandler,
-            data.getDefsFromLspFunction,
-            this.ide,
-          );
-        },
-      );
-
-      const workspaceDir =
-        data.actions.length > 0 ? data.actions[0].workspaceDir : undefined;
-
-      // Store the latest context data
-      const instance = EditAggregator.getInstance();
-      (instance as any).latestContextData = {
-        configHandler: data.configHandler,
-        getDefsFromLspFunction: data.getDefsFromLspFunction,
-        recentlyEditedRanges: data.recentlyEditedRanges,
-        recentlyVisitedRanges: data.recentlyVisitedRanges,
-        workspaceDir: workspaceDir,
-      };
-
-      // queueMicrotask prevents blocking the UI thread during typing
-      queueMicrotask(() => {
-        void EditAggregator.getInstance().processEdits(data.actions);
-      });
-    });
+    // files/smallEdit removed - not needed for autocomplete
 
     // Docs, etc. indexing
     on("indexing/reindex", async (msg) => {
@@ -1098,73 +919,7 @@ export class Core {
       return { url };
     });
 
-    on("tools/call", async ({ data: { toolCall } }) =>
-      this.handleToolCall(toolCall),
-    );
-
-    on(
-      "tools/evaluatePolicy",
-      async ({ data: { toolName, basePolicy, parsedArgs, processedArgs } }) => {
-        const { config } = await this.configHandler.loadConfig();
-        if (!config) {
-          throw new Error("Config not loaded");
-        }
-
-        const tool = config.tools.find((t) => t.function.name === toolName);
-        if (!tool) {
-          return { policy: basePolicy };
-        }
-
-        // Extract display value for specific tools
-        let displayValue: string | undefined;
-        if (toolName === "runTerminalCommand" && parsedArgs.command) {
-          displayValue = parsedArgs.command as string;
-        }
-
-        if (tool.evaluateToolCallPolicy) {
-          const evaluatedPolicy = tool.evaluateToolCallPolicy(
-            basePolicy,
-            parsedArgs,
-            processedArgs,
-          );
-          return { policy: evaluatedPolicy, displayValue };
-        }
-        return { policy: basePolicy, displayValue };
-      },
-    );
-
-    on("tools/preprocessArgs", async ({ data: { toolName, args } }) => {
-      const { config } = await this.configHandler.loadConfig();
-      if (!config) {
-        throw new Error("Config not loaded");
-      }
-
-      const tool = config?.tools.find((t) => t.function.name === toolName);
-      if (!tool) {
-        throw new Error(`Tool ${toolName} not found`);
-      }
-
-      try {
-        const preprocessedArgs = await tool.preprocessArgs?.(args, {
-          ide: this.ide,
-        });
-        return {
-          preprocessedArgs,
-        };
-      } catch (e) {
-        let errorReason =
-          e instanceof ContinueError ? e.reason : ContinueErrorReason.Unknown;
-        let errorMessage =
-          e instanceof Error
-            ? e.message
-            : `Error preprocessing tool call args for ${toolName}\n${JSON.stringify(args)}`;
-        return {
-          preprocessedArgs: undefined,
-          errorReason,
-          errorMessage,
-        };
-      }
-    });
+    // tools/call, tools/evaluatePolicy, tools/preprocessArgs removed - not needed for autocomplete
 
     on("isItemTooBig", async ({ data: { item } }) => {
       return this.isItemTooBig(item);
@@ -1193,46 +948,7 @@ export class Core {
     });
   }
 
-  private async handleToolCall(toolCall: ToolCall) {
-    const { config } = await this.configHandler.loadConfig();
-    if (!config) {
-      throw new Error("Config not loaded");
-    }
-
-    const tool = config.tools.find(
-      (t) => t.function.name === toolCall.function.name,
-    );
-
-    if (!tool) {
-      throw new Error(`Tool ${toolCall.function.name} not found`);
-    }
-
-    if (!config.selectedModelByRole.chat) {
-      throw new Error("No chat model selected");
-    }
-
-    // Define a callback for streaming output updates
-    const onPartialOutput = (params: {
-      toolCallId: string;
-      contextItems: ContextItem[];
-    }) => {
-      this.messenger.send("toolCallPartialOutput", params);
-    };
-
-    const result = await callTool(tool, toolCall, {
-      config,
-      ide: this.ide,
-      llm: config.selectedModelByRole.chat,
-      fetch: (url, init) =>
-        fetchwithRequestOptions(url, init, config.requestOptions),
-      tool,
-      toolCallId: toolCall.id,
-      onPartialOutput,
-      codeBaseIndexer: this.codeBaseIndexer,
-    });
-
-    return result;
-  }
+  // handleToolCall removed - not needed for autocomplete
 
   private async isItemTooBig(item: ContextItemWithId) {
     const { config } = await this.configHandler.loadConfig();

@@ -1,6 +1,7 @@
 import { ConfigHandler } from "core/config/ConfigHandler";
 import { DataLogger } from "core/data/log";
-import { EDIT_MODE_STREAM_ID } from "core/edit/constants";
+// edit module removed - not needed for autocomplete
+const EDIT_MODE_STREAM_ID = "edit-mode-stream";
 import {
   FromCoreProtocol,
   FromWebviewProtocol,

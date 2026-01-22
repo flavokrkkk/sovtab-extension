@@ -15,25 +15,24 @@ import { openedFilesLruCache } from "../../../autocomplete/util/openedFilesLruCa
 import { chunkDocument } from "../../../indexing/chunk/chunk";
 import { FullTextSearchCodebaseIndex } from "../../../indexing/FullTextSearchCodebaseIndex";
 import { LanceDbIndex } from "../../../indexing/LanceDbIndex";
-import { BuiltInToolNames } from "../../../tools/builtIn";
-import { callBuiltInTool } from "../../../tools/callTool";
-import { globSearchTool } from "../../../tools/definitions/globSearch";
-import { grepSearchTool } from "../../../tools/definitions/grepSearch";
-import { lsTool } from "../../../tools/definitions/ls";
-import { readFileTool } from "../../../tools/definitions/readFile";
-import { viewRepoMapTool } from "../../../tools/definitions/viewRepoMap";
-import { viewSubdirectoryTool } from "../../../tools/definitions/viewSubdirectory";
+// tools module removed - not needed for autocomplete
+// These tools are not used in autocomplete, only in chat retrieval
+const BuiltInToolNames = {
+  GrepSearch: "grep",
+} as const;
+
+const callBuiltInTool = async (
+  _toolName: string,
+  _args: any,
+  _extras: ToolExtras,
+): Promise<ContextItem[]> => {
+  return []; // tools removed - not needed for autocomplete
+};
 
 const DEFAULT_CHUNK_SIZE = 384;
 
-const AVAILABLE_TOOLS: Tool[] = [
-  globSearchTool,
-  grepSearchTool,
-  lsTool,
-  readFileTool,
-  viewRepoMapTool,
-  viewSubdirectoryTool,
-];
+// tools removed - not needed for autocomplete
+const AVAILABLE_TOOLS: Tool[] = [];
 
 export interface RetrievalPipelineOptions {
   llm: ILLM;
@@ -260,7 +259,7 @@ Determine which tools should be used to answer this query. You should feel free 
       ide: this.options.ide,
       llm: this.options.llm,
       fetch: fetch,
-      tool: grepSearchTool,
+      tool: AVAILABLE_TOOLS[0] || ({} as Tool), // tools removed
       config: this.options.config,
     };
 

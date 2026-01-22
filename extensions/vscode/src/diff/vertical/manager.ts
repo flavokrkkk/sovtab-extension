@@ -1,5 +1,8 @@
 import { ChatMessage, DiffLine, IDE, ILLM, RuleWithSource } from "core";
-import { streamDiffLines } from "core/edit/streamDiffLines";
+// edit module removed - not needed for autocomplete
+const streamDiffLines = async function* () {
+  yield { type: "new" as const, line: "" };
+};
 import { pruneLinesFromBottom, pruneLinesFromTop } from "core/llm/countTokens";
 import { getMarkdownLanguageTagForFile } from "core/util";
 import * as URI from "uri-js";
@@ -11,8 +14,14 @@ import { handleLLMError } from "../../util/errorHandling";
 import { VsCodeWebviewProtocol } from "../../webviewProtocol";
 
 import { myersDiff } from "core/diff/myers";
-import { ApplyAbortManager } from "core/edit/applyAbortManager";
-import { EDIT_MODE_STREAM_ID } from "core/edit/constants";
+// edit module removed - not needed for autocomplete
+const ApplyAbortManager = {
+  getInstance: () => ({
+    get: () => new AbortController(),
+    clear: () => {},
+  }),
+};
+const EDIT_MODE_STREAM_ID = "edit-mode-stream";
 import { stripImages } from "core/util/messageContent";
 import { getLastNPathParts } from "core/util/uri";
 import { editOutcomeTracker } from "../../extension/EditOutcomeTracker";

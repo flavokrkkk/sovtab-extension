@@ -2,8 +2,9 @@ import { streamSse } from "@continuedev/fetch";
 import { ChatMessage, CompletionOptions, LLMOptions } from "../../index.js";
 
 import { ChatCompletionCreateParams } from "@continuedev/openai-adapters";
-import { APPLY_UNIQUE_TOKEN } from "../../edit/constants.js";
-import { UNIQUE_TOKEN } from "../../nextEdit/constants.js";
+// edit and nextEdit modules removed - not needed for autocomplete
+const APPLY_UNIQUE_TOKEN = "<APPLY_UNIQUE_TOKEN>";
+const UNIQUE_TOKEN = "<UNIQUE_TOKEN>";
 import OpenAI from "./OpenAI.js";
 
 /**

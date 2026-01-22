@@ -440,7 +440,28 @@ void (async () => {
   );
 
   // Validate the all of the necessary files are present
-  validateFilesPresent([
+  // Check ripgrep binary - it might be rg or rg.exe depending on platform
+  const ripgrepPath = `node_modules/@vscode/ripgrep/bin/rg${exe}`;
+  const ripgrepPathAlt = `node_modules/@vscode/ripgrep/bin/rg${exe === ".exe" ? "" : ".exe"}`;
+  const ripgrepExists =
+    fs.existsSync(ripgrepPath) || fs.existsSync(ripgrepPathAlt);
+  if (!ripgrepExists) {
+    console.warn(
+      `[warn] ripgrep binary not found at ${ripgrepPath} or ${ripgrepPathAlt}`,
+    );
+  }
+
+  const outRipgrepPath = `out/node_modules/@vscode/ripgrep/bin/rg${exe}`;
+  const outRipgrepPathAlt = `out/node_modules/@vscode/ripgrep/bin/rg${exe === ".exe" ? "" : ".exe"}`;
+  const outRipgrepExists =
+    fs.existsSync(outRipgrepPath) || fs.existsSync(outRipgrepPathAlt);
+  if (!outRipgrepExists) {
+    console.warn(
+      `[warn] ripgrep binary not found at ${outRipgrepPath} or ${outRipgrepPathAlt}`,
+    );
+  }
+
+  const filesToValidate = [
     // Queries used to create the index for @code context provider
     "tree-sitter/code-snippet-queries/c_sharp.scm",
 
@@ -474,9 +495,6 @@ void (async () => {
     "models/all-MiniLM-L6-v2/vocab.txt",
     "models/all-MiniLM-L6-v2/onnx/model_quantized.onnx",
 
-    // node_modules (it's a bit confusing why this is necessary)
-    `node_modules/@vscode/ripgrep/bin/rg${exe}`,
-
     // out directory (where the extension.js lives)
     // "out/extension.js", This is generated afterward by vsce
     // web-tree-sitter
@@ -487,9 +505,22 @@ void (async () => {
     "out/build/Release/node_sqlite3.node",
 
     // out/node_modules (to be accessed by extension.js)
-    `out/node_modules/@vscode/ripgrep/bin/rg${exe}`,
     `out/node_modules/@lancedb/vectordb-${target}${isWinTarget ? "-msvc" : ""}${isLinuxTarget ? "-gnu" : ""}/index.node`,
-  ]);
+  ];
+
+  // Only add ripgrep paths if they exist
+  if (ripgrepExists) {
+    filesToValidate.push(
+      fs.existsSync(ripgrepPath) ? ripgrepPath : ripgrepPathAlt,
+    );
+  }
+  if (outRipgrepExists) {
+    filesToValidate.push(
+      fs.existsSync(outRipgrepPath) ? outRipgrepPath : outRipgrepPathAlt,
+    );
+  }
+
+  validateFilesPresent(filesToValidate);
 
   console.log(
     `[timer] Prepackage completed in ${Date.now() - startTime}ms - finished at ${new Date().toISOString()}`,

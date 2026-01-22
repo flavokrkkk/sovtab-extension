@@ -32,9 +32,7 @@ import {
   SerializedContinueConfig,
   SlashCommandWithSource,
 } from "..";
-import { getLegacyBuiltInSlashCommandFromDescription } from "../commands/slash/built-in-legacy";
-import { convertCustomCommandToSlashCommand } from "../commands/slash/customSlashCommand";
-import { slashCommandFromPromptFile } from "../commands/slash/promptFileSlashCommand";
+// commands module removed - not needed for autocomplete
 import { MCPManagerSingleton } from "../context/mcp/MCPManagerSingleton";
 import { useHub } from "../control-plane/env";
 import { BaseLLM } from "../llm";
@@ -61,7 +59,7 @@ import { localPathToUri } from "../util/pathToUri";
 import { loadJsonMcpConfigs } from "../context/mcp/json/loadJsonMcpConfigs";
 import CustomContextProviderClass from "../context/providers/CustomContextProvider";
 import { PolicySingleton } from "../control-plane/PolicySingleton";
-import { getBaseToolDefinitions, serializeTool } from "../tools";
+// tools module removed - not needed for autocomplete
 import { resolveRelativePathInDir } from "../util/ideUtils";
 import { getWorkspaceRcConfigs } from "./json/loadRcConfigs";
 import { loadConfigContextProviders } from "./loadContextProviders";
@@ -172,36 +170,10 @@ async function serializedToIntermediateConfig(
   initial: SerializedContinueConfig,
   ide: IDE,
 ): Promise<Config> {
-  // DEPRECATED - load custom slash commands
-  const slashCommands: SlashCommandWithSource[] = [];
-  for (const command of initial.slashCommands || []) {
-    const newCommand = getLegacyBuiltInSlashCommandFromDescription(command);
-    if (newCommand) {
-      slashCommands.push(newCommand);
-    }
-  }
-  for (const command of initial.customCommands || []) {
-    slashCommands.push(convertCustomCommandToSlashCommand(command));
-  }
-
-  // DEPRECATED - load slash commands from v1 prompt files
-  // NOTE: still checking the v1 default .prompts folder for slash commands
-  const promptFiles = await getAllPromptFiles(
-    ide,
-    initial.experimental?.promptPath,
-    true,
-  );
-
-  for (const file of promptFiles) {
-    const slashCommand = slashCommandFromPromptFile(file.path, file.content);
-    if (slashCommand) {
-      slashCommands.push(slashCommand);
-    }
-  }
-
+  // slashCommands removed - not needed for autocomplete
   const config: Config = {
     ...initial,
-    slashCommands,
+    slashCommands: [],
     contextProviders: initial.contextProviders || [],
   };
 
@@ -503,7 +475,7 @@ async function intermediateToFinalConfig({
   const continueConfig: ContinueConfig = {
     ...config,
     contextProviders,
-    tools: getBaseToolDefinitions(),
+    tools: [], // tools removed - not needed for autocomplete
     mcpServerStatuses: [],
     slashCommands: [],
     modelsByRole: {
@@ -673,7 +645,7 @@ async function finalToBrowserConfig(
     experimental: final.experimental,
     rules: final.rules,
     docs: final.docs,
-    tools: final.tools.map(serializeTool),
+    tools: [], // tools removed - not needed for autocomplete
     mcpServerStatuses: final.mcpServerStatuses,
     tabAutocompleteOptions: final.tabAutocompleteOptions,
     usePlatform: await useHub(ide.getIdeSettings()),

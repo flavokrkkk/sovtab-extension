@@ -1,9 +1,15 @@
-import {
-  EditableRegionStrategy,
-  getNextEditableRegion,
-} from "core/nextEdit/NextEditEditableRegionCalculator";
-import { PrefetchQueue } from "core/nextEdit/NextEditPrefetchQueue";
-import { NextEditProvider } from "core/nextEdit/NextEditProvider";
+// nextEdit module removed - not needed for autocomplete
+const getNextEditableRegion = async () => [];
+const PrefetchQueue = {
+  getInstance: () => ({
+    enqueueUnprocessed: () => {},
+  }),
+};
+const NextEditProvider = {
+  getInstance: () => ({
+    deleteChain: async () => {},
+  }),
+};
 import { localPathOrUriToPath } from "core/util/pathToUri";
 import * as vscode from "vscode";
 import { VsCodeIde } from "../VsCodeIde";

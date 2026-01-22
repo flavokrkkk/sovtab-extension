@@ -9,7 +9,22 @@ import {
   TextMessagePart,
   ToolCallDelta,
 } from "../../index.js";
-import { safeParseToolCallArgs } from "../../tools/parseArgs.js";
+// tools/parseArgs removed - not needed for autocomplete
+const safeParseToolCallArgs = (toolCall: any) => {
+  try {
+    if (typeof toolCall === "string") {
+      return JSON.parse(toolCall);
+    }
+    if (toolCall?.function?.arguments) {
+      return typeof toolCall.function.arguments === "string"
+        ? JSON.parse(toolCall.function.arguments)
+        : toolCall.function.arguments;
+    }
+    return {};
+  } catch {
+    return {};
+  }
+};
 import { renderChatMessage, stripImages } from "../../util/messageContent.js";
 import { extractBase64FromDataUrl } from "../../util/url.js";
 import { BaseLLM } from "../index.js";
